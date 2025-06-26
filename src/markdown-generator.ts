@@ -184,7 +184,9 @@ export class MarkdownGenerator {
     };
   }
 
-  private generateHealthSummary(jsonData: Record<string, unknown>): HealthSummary {
+  private generateHealthSummary(
+    jsonData: Record<string, unknown>
+  ): HealthSummary {
     const inRange = this.biomarkerResults.filter(
       (r) => r.currentResult.inRange
     ).length;
@@ -196,9 +198,9 @@ export class MarkdownGenerator {
     // Try to extract biological age
     let biologicalAge: number | undefined;
     const biologicalAgeData = jsonData.biologicalAge as Record<string, unknown>;
-    if (biologicalAgeData?.data && typeof biologicalAgeData.data === 'object') {
+    if (biologicalAgeData?.data && typeof biologicalAgeData.data === "object") {
       const ageData = biologicalAgeData.data as Record<string, unknown>;
-      if (typeof ageData.age === 'number') {
+      if (typeof ageData.age === "number") {
         biologicalAge = ageData.age;
       }
     }
@@ -254,7 +256,9 @@ export class MarkdownGenerator {
     return summaryNote ? summaryNote.note : null;
   }
 
-  private getDetailedBiomarkerInfo(biomarkerId: string): IndividualBiomarker | null {
+  private getDetailedBiomarkerInfo(
+    biomarkerId: string
+  ): IndividualBiomarker | null {
     return (
       this.individualBiomarkers.find(
         (biomarker) => biomarker.id === biomarkerId
@@ -511,12 +515,7 @@ ${
 
 ${detailedInfo.resourcesCited}`
     : ""
-}
-
----
-
-*This analysis is based on your Function Health data. Consult with healthcare professionals for medical interpretation.*
-`;
+}`;
   }
 
   private generateOverviewMarkdown(summary: HealthSummary): string {
