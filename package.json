@@ -26,6 +26,7 @@
     "build": "tsc",
     "start": "bun run src/cli.ts",
     "export": "bun run src/cli.ts export",
+    "markdown": "bun run src/cli.ts markdown",
     "config": "bun run src/cli.ts config",
     "help": "bun run src/cli.ts help",
     "dev": "bun run --watch src/cli.ts"

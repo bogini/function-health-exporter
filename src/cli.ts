@@ -7,6 +7,7 @@ import readline from "readline";
 import { FunctionHealthClient } from "./function-health-client";
 import { Logger } from "./logger";
 import { ConfigManager, Config } from "./config";
+import { MarkdownGenerator } from "./markdown-generator";
 
 const VERSION = "1.0.0";
 
@@ -21,6 +22,14 @@ interface CLIOptions {
   "save-credentials"?: boolean;
   "no-retry"?: boolean;
   "max-biomarkers"?: number;
+}
+
+interface MarkdownOptions {
+  input?: string;
+  output?: string;
+  verbose?: boolean;
+  quiet?: boolean;
+  debug?: boolean;
 }
 
 class FunctionHealthCLI {
@@ -291,6 +300,74 @@ class FunctionHealthCLI {
       this.rl.close();
     }
   }
+
+  async markdownCommand(options: MarkdownOptions): Promise<void> {
+    try {
+      // Update logger options
+      this.logger.updateOptions({
+        verbose: options.verbose,
+        quiet: options.quiet,
+        level: options.debug ? "debug" : "info",
+      });
+
+      // Set default directories
+      const inputDir = options.input || "function-health-export";
+      const outputDir = options.output || "health-reports";
+
+      // Display banner
+      this.logger.box("Function Health Markdown Generator", [
+        `Version: ${VERSION}`,
+        `Input Directory: ${inputDir}`,
+        `Output Directory: ${outputDir}`,
+        `Converting JSON health data to LLM-ready Markdown reports`,
+      ]);
+
+      // Check if input directory exists
+      try {
+        await fs.access(inputDir);
+      } catch {
+        this.logger.error(
+          `Input directory "${inputDir}" not found. Please run the export command first or specify a different input directory.`
+        );
+        process.exit(1);
+      }
+
+      // Initialize markdown generator
+      const markdownGenerator = new MarkdownGenerator(this.logger);
+
+      // Generate markdown reports
+      await markdownGenerator.generateMarkdownReports(inputDir, outputDir);
+
+      // Success message
+      this.logger.box("Success!", [
+        `Your health data has been converted to Markdown reports`,
+        `Location: ${outputDir}/`,
+        `Files created: Overview + categorized health reports`,
+        `Ready for LLM analysis and personal health insights`,
+      ]);
+    } catch (error) {
+      this.logger.error("Markdown generation failed", error as Error);
+
+      if (
+        (error as Error).message.includes("complete-function-health-data.json")
+      ) {
+        this.logger.info("Troubleshooting tips:");
+        this.logger.info(
+          "• Run 'function-health export' first to generate JSON data"
+        );
+        this.logger.info(
+          "• Check that the input directory contains your exported data"
+        );
+        this.logger.info(
+          "• Verify the complete-function-health-data.json file exists"
+        );
+      }
+
+      process.exit(1);
+    } finally {
+      this.rl.close();
+    }
+  }
 }
 
 // CLI Setup
@@ -343,6 +420,27 @@ program
     await cli.configCommand(options);
   });
 
+// Markdown command
+program
+  .command("markdown")
+  .description("Convert exported JSON data to LLM-ready Markdown reports")
+  .option(
+    "-i, --input <directory>",
+    "Input directory with JSON data",
+    "function-health-export"
+  )
+  .option(
+    "-o, --output <directory>",
+    "Output directory for Markdown files",
+    "health-reports"
+  )
+  .option("-v, --verbose", "Verbose logging")
+  .option("-q, --quiet", "Minimal output")
+  .option("-d, --debug", "Debug logging")
+  .action(async (options: MarkdownOptions) => {
+    await cli.markdownCommand(options);
+  });
+
 // Help command
 program
   .command("help")
@@ -358,7 +456,7 @@ program
       "  function-health export                 # Export all data interactively"
     );
     console.log(
-      "  function-health export --save-credentials  # Save email for future use"
+      "  function-health markdown               # Convert JSON to LLM-ready Markdown"
     );
     console.log(
       "  function-health config --list          # Show current settings\n"
@@ -382,6 +480,14 @@ program
     console.log("  # Configure default settings");
     console.log(
       "  function-health config --output-dir ~/health-exports --max-biomarkers 15"
+    );
+    console.log("");
+    console.log("  # Convert JSON data to Markdown reports");
+    console.log("  function-health markdown");
+    console.log("");
+    console.log("  # Convert with custom input/output directories");
+    console.log(
+      "  function-health markdown --input ./my-data --output ./health-reports"
     );
 
     console.log(chalk.yellow.bold("\nDATA EXPORTED:"));

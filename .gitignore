@@ -36,5 +36,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Extracted data
 function-health-export/
 
+# Health reports
+health-reports/
+
 # Cursor
 .cursor/
