@@ -1,0 +1,38 @@
+{
+  "name": "function-health-export",
+  "version": "1.0.0",
+  "description": "Export your complete Function Health data via reverse-engineered APIs",
+  "main": "src/cli.ts",
+  "module": "src/cli.ts",
+  "type": "module",
+  "private": false,
+  "bin": {
+    "function-health": "./src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "dotenv": "^16.5.0",
+    "ora": "^8.2.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "bun run src/cli.ts",
+    "export": "bun run src/cli.ts export",
+    "config": "bun run src/cli.ts config",
+    "help": "bun run src/cli.ts help",
+    "dev": "bun run --watch src/cli.ts"
+  },
+  "files": [
+    "src/**/*",
+    "README.md",
+    "LICENSE"
+  ]
+}
